@@ -2,14 +2,11 @@
 
 namespace JibayMcs\DynamicForms\Forms;
 
-use Closure;
-use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Concerns;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use JibayMcs\DynamicForms\Concerns\HasRelationship;
 
@@ -35,12 +32,11 @@ class DynamicForm extends Field
         $this->fillSchema($this->getName());
     }
 
-    public function fillSchema(string|array $data = null)
+    public function fillSchema(string|array|null $data = null)
     {
-        if(is_array($data)) {
+        if (is_array($data)) {
             $form_data = $data;
-        }
-        else if (is_string($data)) {
+        } elseif (is_string($data)) {
             if (file_exists($data)) {
                 $form_data = json_decode(file_get_contents($data), true);
             } else {
@@ -50,17 +46,17 @@ class DynamicForm extends Field
             $form_data = $this->getModel()->{$data};
         }
 
-        if (!$form_data) {
+        if (! $form_data) {
             $this->schema = [];
-        } else
+        } else {
             $this->schema = $this->constructForm($form_data);
+        }
     }
 
     public function getSchema(): ?array
     {
         return $this->schema;
     }
-
 
     public function constructForm($data): array
     {
@@ -237,5 +233,4 @@ class DynamicForm extends Field
 
         return $field;
     }
-
 }
