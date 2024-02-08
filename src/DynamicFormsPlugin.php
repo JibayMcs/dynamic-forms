@@ -4,7 +4,6 @@ namespace JibayMcs\DynamicForms;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Livewire\Livewire;
 
 class DynamicFormsPlugin implements Plugin
 {

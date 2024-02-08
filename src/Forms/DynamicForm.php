@@ -2,9 +2,6 @@
 
 namespace JibayMcs\DynamicForms\Forms;
 
-use Closure;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +9,6 @@ use Livewire\Component;
 
 class DynamicForm extends Component
 {
-
     public static function make(Model|string $model, ?string $column = null): array
     {
         if (is_string($model)) {
@@ -42,16 +38,16 @@ class DynamicForm extends Component
                         foreach ($value as $prop_key => $prop_value) {
 
                             switch ($property_key) {
-                                case "visibleOn":
+                                case 'visibleOn':
                                     if (is_array($value)) {
                                         $field->{$property_key}($value);
                                     } else {
                                         $field->{$property_key}([$prop_value]);
                                     }
                                     break;
-                                    case "afterStateUpdated":
-                                        dd($property_key, $value);
-                                        break;
+                                case 'afterStateUpdated':
+                                    dd($property_key, $value);
+                                    break;
                                 default:
                                     if (is_array($value)) {
                                         $field->{$property_key}($prop_key = $prop_value);
@@ -64,12 +60,12 @@ class DynamicForm extends Component
                     } else {
 
                         switch ($property_key) {
-                            case "visibleOn":
+                            case 'visibleOn':
                                 $field->{$property_key}([$value]);
                                 break;
-                            case "afterStateUpdated":
+                            case 'afterStateUpdated':
                                 break;
-                                $field->afterStateUpdated(function(Set $set, Get $get, $state, $old) use ($value) {
+                                $field->afterStateUpdated(function (Set $set, Get $get, $state, $old) use ($value) {
 
                                     $pattern = "/\((.*?)\)/";
 
@@ -99,7 +95,7 @@ class DynamicForm extends Component
             $schema[] = $field;
         }
 
-//        dd($schema[array_key_last($schema)]);
+        //        dd($schema[array_key_last($schema)]);
 
         return $schema;
     }
