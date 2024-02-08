@@ -48,9 +48,9 @@ class DynamicFormsServiceProvider extends PackageServiceProvider
             $package->hasTranslations();
         }*/
 
-        /*if (file_exists($package->basePath('/../resources/views'))) {
+        if (file_exists($package->basePath('/../resources/views'))) {
             $package->hasViews(static::$viewNamespace);
-        }*/
+        }
     }
 
     public function packageRegistered(): void

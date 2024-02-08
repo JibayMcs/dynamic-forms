@@ -2,41 +2,78 @@
 
 namespace JibayMcs\DynamicForms\Forms;
 
+use Closure;
+use Filament\Forms\Components\Component;
+use Filament\Forms\Components\Concerns;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Illuminate\Database\Eloquent\Model;
-use Livewire\Component;
+use JibayMcs\DynamicForms\Concerns\HasRelationship;
 
-class DynamicForm extends Component
+class DynamicForm extends Field
 {
-    public static function make(Model|string $model, ?string $column = null): array
-    {
-        if (is_string($model)) {
-            $form_data = json_decode(file_get_contents($model), true);
-        } else {
-            $form_data = $model->{$column};
-        }
+    use Concerns\HasName;
+    use HasRelationship;
 
-        return static::constructForm($form_data);
+    protected ?array $schema = null;
+
+    protected string $view = 'dynamic-forms::dynamic-form';
+
+    public static function make(string $name): static
+    {
+        $static = app(static::class, ['name' => $name]);
+        $static->configure();
+
+        return $static;
     }
 
-    public static function constructForm($data): array
+    public function setUp(): void
+    {
+        $this->fillSchema($this->getName());
+    }
+
+    public function fillSchema(string|array $data = null)
+    {
+        if(is_array($data)) {
+            $form_data = $data;
+        }
+        else if (is_string($data)) {
+            if (file_exists($data)) {
+                $form_data = json_decode(file_get_contents($data), true);
+            } else {
+                $form_data = null;
+            }
+        } else {
+            $form_data = $this->getModel()->{$data};
+        }
+
+        if (!$form_data) {
+            $this->schema = [];
+        } else
+            $this->schema = $this->constructForm($form_data);
+    }
+
+    public function getSchema(): ?array
+    {
+        return $this->schema;
+    }
+
+
+    public function constructForm($data): array
     {
         $schema = [];
 
         foreach ($data as $key => $property) {
 
             match ($key) {
-                "Filament\Forms\Components\Grid" => $schema[] = self::constructFromGrid($key, $property),
-                "Filament\Forms\Components\Section" => $schema[] = self::constructFromSection($key, $property),
-                "Filament\Forms\Components\Fieldset" => $schema[] = self::constructFromFieldset($key, $property),
-                "Filament\Forms\Components\Tabs" => $schema[] = self::constructFromTabs($key, $property),
-                default => $schema[] = self::constructField($key, $property),
+                "Filament\Forms\Components\Grid" => $schema[] = $this->constructFromGrid($key, $property),
+                "Filament\Forms\Components\Section" => $schema[] = $this->constructFromSection($key, $property),
+                "Filament\Forms\Components\Fieldset" => $schema[] = $this->constructFromFieldset($key, $property),
+                "Filament\Forms\Components\Tabs" => $schema[] = $this->constructFromTabs($key, $property),
+                default => $schema[] = $this->constructField($key, $property),
             };
 
         }
@@ -44,7 +81,7 @@ class DynamicForm extends Component
         return $schema;
     }
 
-    private static function constructField($key, $property): Field|\Filament\Forms\Components\Component
+    private function constructField($key, $property): Field|\Filament\Forms\Components\Component
     {
         $field = $property['field']::make($key);
 
@@ -53,9 +90,9 @@ class DynamicForm extends Component
         foreach ($property as $property_key => $value) {
             if (method_exists($field, $property_key)) {
                 if (is_array($value)) {
-                    $field = self::mountFieldFromArray($field, $property_key, $value);
+                    $field = $this->mountFieldFromArray($field, $property_key, $value);
                 } else {
-                    $field = self::mountField($field, $property_key, $value);
+                    $field = $this->mountField($field, $property_key, $value);
                 }
             }
         }
@@ -63,14 +100,14 @@ class DynamicForm extends Component
         return $field;
     }
 
-    private static function constructFromGrid(int|string $key, $property): Grid
+    private function constructFromGrid(int|string $key, $property): Grid
     {
         $columns = $property['columns'] ?? 2;
         $layout_fields = [];
 
         foreach ($property['schema'] as $children) {
             foreach ($children as $name => $properties) {
-                $layout_fields[] = self::constructField($name, $properties);
+                $layout_fields[] = $this->constructField($name, $properties);
             }
         }
 
@@ -78,17 +115,17 @@ class DynamicForm extends Component
             ->schema($layout_fields);
     }
 
-    private static function constructFromSection(int|string $key, $property): Section
+    private function constructFromSection(int|string $key, $property): Section
     {
-        return self::constructSimpleLayout($key, $property);
+        return $this->constructSimpleLayout($key, $property);
     }
 
-    private static function constructFromFieldset(int|string $key, $property): Fieldset
+    private function constructFromFieldset(int|string $key, $property): Fieldset
     {
-        return self::constructSimpleLayout($key, $property);
+        return $this->constructSimpleLayout($key, $property);
     }
 
-    private static function constructFromTabs(int|string $key, $property): Tabs
+    private function constructFromTabs(int|string $key, $property): Tabs
     {
         $tabs_instance = $key::make($property['heading']);
         $tabs = [];
@@ -100,7 +137,7 @@ class DynamicForm extends Component
 
                 foreach (collect($schema) as $tab_schema) {
                     foreach ($tab_schema as $name => $properties) {
-                        $tab_fields[] = self::constructField($name, $properties);
+                        $tab_fields[] = $this->constructField($name, $properties);
                     }
                 }
 
@@ -114,13 +151,13 @@ class DynamicForm extends Component
         return $tabs_instance->tabs($tabs);
     }
 
-    private static function constructSimpleLayout(int|string $key, $property)
+    private function constructSimpleLayout(int|string $key, $property)
     {
         $layout_fields = [];
 
         foreach ($property['schema'] as $children) {
             foreach ($children as $name => $properties) {
-                $layout_fields[] = self::constructField($name, $properties);
+                $layout_fields[] = $this->constructField($name, $properties);
             }
         }
 
@@ -139,7 +176,7 @@ class DynamicForm extends Component
         return $section->schema($layout_fields);
     }
 
-    private static function mountFieldFromArray(mixed $field, int|string $property_key, array $value): Field
+    private function mountFieldFromArray(mixed $field, int|string $property_key, array $value): Field
     {
         foreach ($value as $prop_key => $prop_value) {
 
@@ -166,7 +203,7 @@ class DynamicForm extends Component
         return $field;
     }
 
-    private static function mountField(mixed $field, int|string $property_key, $value): Field
+    private function mountField(mixed $field, int|string $property_key, $value): Field
     {
         switch ($property_key) {
             case 'visibleOn':
@@ -200,4 +237,5 @@ class DynamicForm extends Component
 
         return $field;
     }
+
 }
