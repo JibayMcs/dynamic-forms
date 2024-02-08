@@ -2,23 +2,18 @@
 
 namespace JibayMcs\DynamicForms\Forms;
 
-use Closure;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Resources\Components\Tab;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
 
 class DynamicForm extends Component
 {
-
     public static function make(Model|string $model, ?string $column = null): array
     {
         if (is_string($model)) {
@@ -34,7 +29,6 @@ class DynamicForm extends Component
     {
         $schema = [];
 
-
         foreach ($data as $key => $property) {
 
             match ($key) {
@@ -46,7 +40,6 @@ class DynamicForm extends Component
             };
 
         }
-
 
         return $schema;
     }
@@ -116,7 +109,6 @@ class DynamicForm extends Component
                 $tabs[] = $tab;
             }
 
-
         }
 
         return $tabs_instance->tabs($tabs);
@@ -152,14 +144,14 @@ class DynamicForm extends Component
         foreach ($value as $prop_key => $prop_value) {
 
             switch ($property_key) {
-                case "visibleOn":
+                case 'visibleOn':
                     if (is_array($value)) {
                         $field->{$property_key}($value);
                     } else {
                         $field->{$property_key}([$prop_value]);
                     }
                     break;
-                case "afterStateUpdated":
+                case 'afterStateUpdated':
                     break;
                 default:
                     if (is_array($value)) {
@@ -177,10 +169,10 @@ class DynamicForm extends Component
     private static function mountField(mixed $field, int|string $property_key, $value): Field
     {
         switch ($property_key) {
-            case "visibleOn":
+            case 'visibleOn':
                 $field->{$property_key}([$value]);
                 break;
-            case "afterStateUpdated":
+            case 'afterStateUpdated':
                 break;
                 /*$field->afterStateUpdated(function(Set $set, Get $get, $state, $old) use ($value) {
 
@@ -208,5 +200,4 @@ class DynamicForm extends Component
 
         return $field;
     }
-
 }
