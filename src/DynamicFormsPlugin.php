@@ -1,25 +1,26 @@
 <?php
 
-namespace VendorName\Skeleton;
+namespace JibayMcs\DynamicForms;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
+use Livewire\Livewire;
 
-class SkeletonPlugin implements Plugin
+class DynamicFormsPlugin implements Plugin
 {
     public function getId(): string
     {
-        return 'skeleton';
+        return 'dynamic-forms';
     }
 
     public function register(Panel $panel): void
     {
-        //
+
     }
 
     public function boot(Panel $panel): void
     {
-        //
+
     }
 
     public static function make(): static
