@@ -2,10 +2,6 @@
 
 namespace JibayMcs\DynamicForms;
 
-use Filament\Facades\Filament;
-use Filament\Forms\Form;
-use Filament\Resources\Pages\CreateRecord;
-use Filament\Resources\Resource;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
@@ -13,13 +9,12 @@ use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Filesystem\Filesystem;
-use JibayMcs\DynamicForms\Forms\DynamicForm;
+use JibayMcs\DynamicForms\Commands\DynamicFormsCommand;
+use JibayMcs\DynamicForms\Testing\TestsDynamicForms;
 use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use JibayMcs\DynamicForms\Commands\DynamicFormsCommand;
-use JibayMcs\DynamicForms\Testing\TestsDynamicForms;
 
 class DynamicFormsServiceProvider extends PackageServiceProvider
 {
@@ -85,8 +80,8 @@ class DynamicFormsServiceProvider extends PackageServiceProvider
     {
         return [
             // AlpineComponent::make('dynamic-forms', __DIR__ . '/../resources/dist/components/dynamic-forms.js'),
-            Css::make('dynamic-forms-styles', __DIR__ . '/../resources/dist/dynamic-forms.css'),
-            Js::make('dynamic-forms-scripts', __DIR__ . '/../resources/dist/dynamic-forms.js'),
+            Css::make('dynamic-forms-styles', __DIR__.'/../resources/dist/dynamic-forms.css'),
+            Js::make('dynamic-forms-scripts', __DIR__.'/../resources/dist/dynamic-forms.js'),
         ];
     }
 
